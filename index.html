@@ -821,15 +821,16 @@
    ---------------------------------------------------------------------
    Preencha com os dados do SEU projeto Firebase (Configurações do
    projeto > Geral > "Seus apps" > SDK setup and configuration).
-   Sem isso preenchido, o app funciona só na tela de aviso abaixo.
+   A configuração abaixo já está preenchida com os dados do projeto Firebase informado.
    ===================================================================== */
 const firebaseConfig = {
-  apiKey: "COLE_AQUI_SUA_API_KEY",
-  authDomain: "SEU_PROJETO.firebaseapp.com",
-  projectId: "SEU_PROJETO",
-  storageBucket: "SEU_PROJETO.appspot.com",
-  messagingSenderId: "SEU_SENDER_ID",
-  appId: "SEU_APP_ID"
+  apiKey: "AIzaSyByjdln4ilFGjNJufhx4pdkd0fouh43hic",
+  authDomain: "rocket-98ae1.firebaseapp.com",
+  projectId: "rocket-98ae1",
+  storageBucket: "rocket-98ae1.firebasestorage.app",
+  messagingSenderId: "564917391926",
+  appId: "1:564917391926:web:7b20fe544f9c71aa163e97",
+  measurementId: "G-6QRLQGXXEL"
 };
 
 const ADMIN_PIN = "7474";
@@ -853,11 +854,11 @@ if (looksUnconfigured){
 }
 
 async function initApp(){
-  const { initializeApp } = await import("https://www.gstatic.com/firebasejs/10.13.0/firebase-app.js");
+  const { initializeApp } = await import("https://www.gstatic.com/firebasejs/12.18.0/firebase-app.js");
   const {
     getFirestore, collection, addDoc, getDocs, doc, updateDoc, deleteDoc,
     query, orderBy, getDoc
-  } = await import("https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore.js");
+  } = await import("https://www.gstatic.com/firebasejs/12.18.0/firebase-firestore.js");
 
   const app = initializeApp(firebaseConfig);
   const db = getFirestore(app);
