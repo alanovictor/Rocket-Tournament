@@ -857,7 +857,7 @@ async function initApp(){
   const { initializeApp } = await import("https://www.gstatic.com/firebasejs/12.18.0/firebase-app.js");
   const {
     getFirestore, collection, addDoc, getDocs, doc, updateDoc, deleteDoc,
-    query, orderBy, getDoc
+    getDoc
   } = await import("https://www.gstatic.com/firebasejs/12.18.0/firebase-firestore.js");
 
   const app = initializeApp(firebaseConfig);
@@ -906,9 +906,16 @@ async function initApp(){
   const gateMsgListEl = document.getElementById('gate-msg-list');
 
   async function fetchSlots(){
-    const q = query(savesCol, orderBy("updatedAt", "desc"));
-    const snap = await getDocs(q);
-    return snap.docs.map(d => ({ id: d.id, ...d.data() }));
+    // Não usamos orderBy() aqui: isso evita problemas com índice/campos
+    // antigos e permite que documentos sem updatedAt também apareçam.
+    const snap = await getDocs(savesCol);
+    const slots = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+    slots.sort((a, b) => {
+      const da = a.updatedAt?.toMillis ? a.updatedAt.toMillis() : new Date(a.updatedAt || 0).getTime();
+      const db = b.updatedAt?.toMillis ? b.updatedAt.toMillis() : new Date(b.updatedAt || 0).getTime();
+      return db - da;
+    });
+    return slots;
   }
 
   async function renderSlotList(){
@@ -939,9 +946,15 @@ async function initApp(){
       });
       return slots;
     }catch(err){
-      console.error(err);
+      console.error("Firebase fetchSlots error:", err);
       slotListEl.innerHTML = '';
-      showMsg(gateMsgListEl, 'Não foi possível carregar os salvamentos. Verifique a configuração do Firebase e as regras do Firestore.', 'error');
+      const code = err?.code ? ` [${err.code}]` : '';
+      const detail = err?.message ? ` ${err.message}` : '';
+      showMsg(
+        gateMsgListEl,
+        `Não foi possível carregar os salvamentos.${code}${detail} Verifique se o Firestore foi criado e se as regras permitem leitura.`,
+        'error'
+      );
       return [];
     }
   }
