@@ -1,0 +1,1312 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Rocket! — Pontuação da equipe</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0B0D14;
+    --surface:#12151F;
+    --surface-2:#181C29;
+    --line:rgba(255,255,255,0.09);
+    --text:#F3F4F8;
+    --text-muted:#8B90A3;
+
+    --empire:#E23744;
+    --empire-tint:#3A1519;
+    --rush:#2F6FED;
+    --rush-tint:#111E38;
+    --power:#22A567;
+    --power-tint:#0F281B;
+    --vision:#F2B705;
+    --vision-tint:#332A0A;
+  }
+
+  *{ box-sizing:border-box; }
+  html{ scroll-behavior:smooth; }
+  body{
+    margin:0;
+    background:var(--bg);
+    color:var(--text);
+    font-family:'Inter', system-ui, sans-serif;
+    -webkit-font-smoothing:antialiased;
+  }
+  h1,h2,h3, .display{
+    font-family:'Space Grotesk', 'Inter', sans-serif;
+  }
+
+  a{ color:inherit; }
+  button{ font-family:inherit; }
+
+  /* ---------- stripe motif ---------- */
+  .stripe{
+    height:5px;
+    display:flex;
+  }
+  .stripe span{ flex:1; }
+  .stripe .empire{ background:var(--empire); }
+  .stripe .rush{ background:var(--rush); }
+  .stripe .power{ background:var(--power); }
+  .stripe .vision{ background:var(--vision); }
+
+  /* ---------- nav ---------- */
+  header{
+    position:sticky;
+    top:0;
+    z-index:20;
+    background:rgba(11,13,20,0.92);
+    backdrop-filter:blur(10px);
+    border-bottom:1px solid var(--line);
+  }
+  .nav-inner{
+    max-width:1080px;
+    margin:0 auto;
+    padding:18px 28px;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:24px;
+    flex-wrap:wrap;
+  }
+  .wordmark{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    font-size:20px;
+    font-weight:700;
+    letter-spacing:-0.01em;
+  }
+  .wordmark .badge{
+    width:30px; height:30px;
+    border-radius:8px;
+    background:conic-gradient(from 220deg, var(--empire), var(--vision), var(--power), var(--rush), var(--empire));
+    display:flex; align-items:center; justify-content:center;
+    font-size:15px;
+    flex-shrink:0;
+  }
+
+  .nav-right{
+    display:flex;
+    align-items:center;
+    gap:14px;
+  }
+
+  .tabs{
+    display:flex;
+    gap:4px;
+    background:var(--surface);
+    padding:4px;
+    border-radius:10px;
+    border:1px solid var(--line);
+  }
+  .tab-btn{
+    border:none;
+    background:transparent;
+    color:var(--text-muted);
+    padding:9px 18px;
+    border-radius:7px;
+    font-size:14.5px;
+    font-weight:600;
+    cursor:pointer;
+    transition:color .15s ease, background .15s ease;
+  }
+  .tab-btn:hover{ color:var(--text); }
+  .tab-btn.active{
+    color:var(--bg);
+    background:var(--text);
+  }
+  .tab-btn:focus-visible, button:focus-visible, input:focus-visible{
+    outline:2px solid var(--vision);
+    outline-offset:2px;
+  }
+
+  .slot-pill{
+    display:flex;
+    align-items:center;
+    gap:8px;
+    font-size:13px;
+    color:var(--text-muted);
+    background:var(--surface);
+    border:1px solid var(--line);
+    padding:7px 12px;
+    border-radius:9px;
+  }
+  .slot-pill strong{ color:var(--text); font-weight:600; }
+  .switch-btn{
+    border:1px solid var(--line);
+    background:transparent;
+    color:var(--text-muted);
+    padding:8px 14px;
+    border-radius:9px;
+    font-size:13.5px;
+    font-weight:600;
+    cursor:pointer;
+    transition:color .15s ease, border-color .15s ease;
+  }
+  .switch-btn:hover{ color:var(--text); border-color:rgba(255,255,255,0.3); }
+
+  main{
+    max-width:1080px;
+    margin:0 auto;
+    padding:48px 28px 96px;
+  }
+  .view{ display:none; }
+  .view.active{ display:block; }
+
+  .view-head{
+    margin-bottom:32px;
+  }
+  .view-head h1{
+    font-size:32px;
+    font-weight:700;
+    margin:0 0 8px;
+    letter-spacing:-0.01em;
+  }
+  .view-head p{
+    margin:0;
+    color:var(--text-muted);
+    font-size:15px;
+    max-width:56ch;
+  }
+
+  /* ---------- Pontuação table ---------- */
+  .table-wrap{
+    background:var(--surface);
+    border:1px solid var(--line);
+    border-radius:14px;
+    overflow:hidden;
+  }
+  table{
+    width:100%;
+    border-collapse:collapse;
+  }
+  thead th{
+    text-align:left;
+    padding:16px 18px;
+    font-size:13.5px;
+    font-weight:700;
+    color:#fff;
+    white-space:nowrap;
+  }
+  thead th.col-activity{
+    color:var(--text-muted);
+    background:var(--surface-2);
+  }
+  thead th.col-empire{ background:var(--empire); }
+  thead th.col-rush{ background:var(--rush); }
+  thead th.col-power{ background:var(--power); }
+  thead th.col-vision{ background:var(--vision); color:#1c1600; }
+
+  tbody td{
+    padding:0;
+    border-bottom:1px solid var(--line);
+  }
+  tbody tr:last-child td{ border-bottom:none; }
+
+  .activity-input{
+    width:100%;
+    border:none;
+    background:transparent;
+    color:var(--text);
+    font-size:14.5px;
+    padding:14px 18px;
+    font-family:inherit;
+  }
+  .activity-input::placeholder{ color:#565b6e; }
+
+  .score-cell{
+    position:relative;
+  }
+  .score-input{
+    width:100%;
+    border:none;
+    background:transparent;
+    color:var(--text);
+    font-size:15px;
+    font-weight:600;
+    text-align:center;
+    padding:14px 10px;
+    font-variant-numeric:tabular-nums;
+    font-family:inherit;
+  }
+  .score-cell.empire{ background:var(--empire-tint); }
+  .score-cell.rush{ background:var(--rush-tint); }
+  .score-cell.power{ background:var(--power-tint); }
+  .score-cell.vision{ background:var(--vision-tint); }
+
+  .row-actions{
+    width:44px;
+    text-align:center;
+  }
+  .remove-row{
+    border:none;
+    background:transparent;
+    color:#565b6e;
+    font-size:18px;
+    cursor:pointer;
+    line-height:1;
+    padding:8px;
+    border-radius:6px;
+    transition:color .15s ease, background .15s ease;
+  }
+  .remove-row:hover{ color:var(--empire); background:rgba(226,55,68,0.12); }
+
+  tfoot td{
+    padding:16px 18px;
+    font-weight:700;
+    font-size:15.5px;
+    border-top:1px solid var(--line);
+    font-variant-numeric:tabular-nums;
+  }
+  tfoot .total-label{
+    color:var(--text-muted);
+    font-size:13px;
+    font-weight:700;
+    letter-spacing:0.01em;
+  }
+  tfoot .total-empire{ background:var(--empire); color:#fff; text-align:center; }
+  tfoot .total-rush{ background:var(--rush); color:#fff; text-align:center; }
+  tfoot .total-power{ background:var(--power); color:#fff; text-align:center; }
+  tfoot .total-vision{ background:var(--vision); color:#1c1600; text-align:center; }
+
+  .table-footer{
+    padding:16px 18px;
+    background:var(--surface-2);
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:12px;
+    flex-wrap:wrap;
+  }
+
+  .save-status{
+    font-size:12.5px;
+    color:var(--text-muted);
+    display:flex;
+    align-items:center;
+    gap:6px;
+  }
+  .save-status .dot{
+    width:7px; height:7px;
+    border-radius:50%;
+    background:var(--power);
+    flex-shrink:0;
+  }
+  .save-status.saving .dot{ background:var(--vision); }
+  .save-status.error .dot{ background:var(--empire); }
+
+  .add-row-btn{
+    display:inline-flex;
+    align-items:center;
+    gap:8px;
+    border:1px dashed rgba(255,255,255,0.22);
+    background:transparent;
+    color:var(--text);
+    padding:10px 16px;
+    border-radius:9px;
+    font-size:14px;
+    font-weight:600;
+    cursor:pointer;
+    transition:border-color .15s ease, background .15s ease;
+  }
+  .add-row-btn:hover{
+    border-color:rgba(255,255,255,0.45);
+    background:rgba(255,255,255,0.04);
+  }
+  .add-row-btn .plus{
+    font-size:16px;
+    line-height:1;
+  }
+
+  /* ---------- Placar ---------- */
+  .board-grid{
+    display:grid;
+    grid-template-columns:repeat(4, 1fr);
+    gap:18px;
+  }
+  .board-card{
+    border-radius:16px;
+    padding:22px 20px;
+    display:flex;
+    flex-direction:column;
+    gap:4px;
+    position:relative;
+    box-shadow:0 12px 24px -12px var(--card-color, transparent);
+    transition:transform .2s ease;
+  }
+  .board-card.leader{ transform:translateY(-6px); }
+  .board-card .rank{
+    font-size:12.5px;
+    font-weight:700;
+    opacity:0.85;
+    text-transform:uppercase;
+    letter-spacing:0.03em;
+  }
+  .board-card .team-name{
+    font-family:'Space Grotesk', sans-serif;
+    font-size:19px;
+    font-weight:700;
+    margin-top:2px;
+  }
+  .board-card .team-score{
+    font-family:'Space Grotesk', sans-serif;
+    font-size:40px;
+    font-weight:700;
+    margin-top:10px;
+    line-height:1;
+  }
+  .board-card .team-points-label{
+    font-size:12.5px;
+    opacity:0.85;
+    margin-top:2px;
+  }
+
+  .board-card.c-empire{ background:linear-gradient(160deg, var(--empire), #8f151d); color:#fff; --card-color: rgba(226,55,68,0.35); }
+  .board-card.c-rush{ background:linear-gradient(160deg, var(--rush), #1c4aa8); color:#fff; --card-color: rgba(47,111,237,0.35); }
+  .board-card.c-power{ background:linear-gradient(160deg, var(--power), #14663f); color:#fff; --card-color: rgba(34,165,103,0.35); }
+  .board-card.c-vision{ background:linear-gradient(160deg, var(--vision), #b58900); color:#211a00; --card-color: rgba(242,183,5,0.35); }
+
+  .board-note{
+    margin-top:28px;
+    text-align:center;
+    color:var(--text-muted);
+    font-size:13.5px;
+  }
+
+  @media (max-width: 860px){
+    .board-grid{ grid-template-columns:repeat(2, 1fr); }
+    .nav-inner{ padding:14px 18px; }
+    main{ padding:32px 18px 72px; }
+  }
+  @media (max-width: 520px){
+    .board-grid{ grid-template-columns:1fr; }
+    thead th, .activity-input{ font-size:13px; }
+    .view-head h1{ font-size:26px; }
+    .board-card.leader{ transform:none; }
+  }
+
+  @media (prefers-reduced-motion: reduce){
+    *{ transition:none !important; animation:none !important; scroll-behavior:auto !important; }
+  }
+
+  /* ---------- App shell hidden until unlocked ---------- */
+  #app-shell{ display:none; }
+  #app-shell.visible{ display:block; }
+
+  /* ---------- Gate (tela de salvamentos / PIN) ---------- */
+  #gate{
+    min-height:100vh;
+    display:flex;
+    align-items:flex-start;
+    justify-content:center;
+    padding:64px 20px 60px;
+  }
+  .gate-box{
+    width:100%;
+    max-width:520px;
+  }
+  .gate-brand{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    font-size:22px;
+    font-weight:700;
+    margin-bottom:6px;
+  }
+  .gate-brand .badge{
+    width:32px; height:32px;
+    border-radius:8px;
+    background:conic-gradient(from 220deg, var(--empire), var(--vision), var(--power), var(--rush), var(--empire));
+    display:flex; align-items:center; justify-content:center;
+    font-size:16px;
+    flex-shrink:0;
+  }
+  .gate-sub{
+    color:var(--text-muted);
+    font-size:14.5px;
+    margin:0 0 30px;
+  }
+  .gate-card{
+    background:var(--surface);
+    border:1px solid var(--line);
+    border-radius:14px;
+    padding:22px;
+    margin-bottom:16px;
+  }
+  .gate-card h2{
+    font-size:15px;
+    margin:0 0 4px;
+  }
+  .gate-card .gate-card-note{
+    font-size:13px;
+    color:var(--text-muted);
+    margin:0 0 16px;
+  }
+
+  .slot-list{
+    display:flex;
+    flex-direction:column;
+    gap:10px;
+  }
+  .slot-row{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:10px;
+    background:var(--surface-2);
+    border:1px solid var(--line);
+    border-radius:10px;
+    padding:12px 14px;
+  }
+  .slot-row .slot-meta{
+    display:flex;
+    flex-direction:column;
+    gap:2px;
+    min-width:0;
+  }
+  .slot-row .slot-name{
+    font-size:14.5px;
+    font-weight:600;
+    white-space:nowrap;
+    overflow:hidden;
+    text-overflow:ellipsis;
+  }
+  .slot-row .slot-date{
+    font-size:12px;
+    color:var(--text-muted);
+  }
+  .slot-row .slot-open-btn{
+    border:1px solid rgba(255,255,255,0.22);
+    background:transparent;
+    color:var(--text);
+    padding:8px 14px;
+    border-radius:8px;
+    font-size:13px;
+    font-weight:600;
+    cursor:pointer;
+    flex-shrink:0;
+  }
+  .slot-row .slot-open-btn:hover{ border-color:rgba(255,255,255,0.5); }
+
+  .empty-note{
+    color:var(--text-muted);
+    font-size:13.5px;
+    padding:6px 2px;
+  }
+
+  .field-label{
+    display:block;
+    font-size:12.5px;
+    font-weight:600;
+    color:var(--text-muted);
+    margin:0 0 6px;
+  }
+  .field-input{
+    width:100%;
+    background:var(--surface-2);
+    border:1px solid var(--line);
+    border-radius:9px;
+    color:var(--text);
+    font-size:14.5px;
+    padding:11px 13px;
+    font-family:inherit;
+    margin-bottom:14px;
+  }
+  .field-input:focus-visible{ outline:2px solid var(--vision); outline-offset:1px; }
+
+  .field-row{ display:flex; gap:10px; }
+  .field-row > div{ flex:1; }
+
+  .primary-btn{
+    width:100%;
+    border:none;
+    background:var(--text);
+    color:var(--bg);
+    padding:12px;
+    border-radius:9px;
+    font-size:14.5px;
+    font-weight:700;
+    cursor:pointer;
+  }
+  .primary-btn:hover{ opacity:0.9; }
+  .primary-btn:disabled{ opacity:0.5; cursor:not-allowed; }
+
+  .ghost-btn{
+    width:100%;
+    border:1px dashed rgba(255,255,255,0.25);
+    background:transparent;
+    color:var(--text);
+    padding:11px;
+    border-radius:9px;
+    font-size:14px;
+    font-weight:600;
+    cursor:pointer;
+    margin-top:10px;
+  }
+  .ghost-btn:hover{ border-color:rgba(255,255,255,0.5); background:rgba(255,255,255,0.04); }
+
+  .gate-msg{
+    font-size:13px;
+    margin:2px 0 14px;
+    padding:10px 12px;
+    border-radius:8px;
+    display:none;
+  }
+  .gate-msg.show{ display:block; }
+  .gate-msg.error{ background:var(--empire-tint); color:#ff9aa3; }
+  .gate-msg.ok{ background:var(--power-tint); color:#8bf0bd; }
+  .gate-msg.info{ background:var(--surface-2); color:var(--text-muted); border:1px solid var(--line); }
+
+  .link-btn{
+    background:none;
+    border:none;
+    color:var(--text-muted);
+    text-decoration:underline;
+    font-size:13px;
+    cursor:pointer;
+    padding:0;
+  }
+  .link-btn:hover{ color:var(--text); }
+
+  .gate-footer-links{
+    text-align:center;
+    margin-top:6px;
+  }
+
+  /* ---------- Modal overlay (abrir slot / reset) ---------- */
+  .modal-overlay{
+    position:fixed;
+    inset:0;
+    background:rgba(5,6,10,0.75);
+    backdrop-filter:blur(3px);
+    display:none;
+    align-items:center;
+    justify-content:center;
+    z-index:50;
+    padding:20px;
+  }
+  .modal-overlay.show{ display:flex; }
+  .modal-box{
+    width:100%;
+    max-width:380px;
+    background:var(--surface);
+    border:1px solid var(--line);
+    border-radius:14px;
+    padding:22px;
+  }
+  .modal-box h3{
+    font-size:16px;
+    margin:0 0 4px;
+  }
+  .modal-box .modal-note{
+    font-size:13px;
+    color:var(--text-muted);
+    margin:0 0 16px;
+  }
+  .modal-actions{
+    display:flex;
+    gap:10px;
+    margin-top:4px;
+  }
+  .modal-actions .secondary-btn{
+    flex:1;
+    border:1px solid var(--line);
+    background:transparent;
+    color:var(--text-muted);
+    padding:11px;
+    border-radius:9px;
+    font-size:13.5px;
+    font-weight:600;
+    cursor:pointer;
+  }
+  .modal-actions .secondary-btn:hover{ color:var(--text); border-color:rgba(255,255,255,0.3); }
+  .modal-actions .primary-btn{ flex:1; }
+
+  .loading-note{
+    color:var(--text-muted);
+    font-size:13.5px;
+    text-align:center;
+    padding:20px 0;
+  }
+</style>
+</head>
+<body>
+
+<!-- ===================== GATE: seleção / criação de salvamento ===================== -->
+<div id="gate">
+  <div class="gate-box">
+    <div class="gate-brand"><span class="badge" aria-hidden="true">🚀</span> Rocket!</div>
+    <p class="gate-sub">Pontuação da equipe — os dados ficam salvos na nuvem, não dependem do cache deste navegador. Escolha um salvamento e informe o PIN para continuar.</p>
+
+    <div id="config-warning" class="gate-msg info"></div>
+
+    <div class="gate-card">
+      <h2>Salvamentos existentes</h2>
+      <p class="gate-card-note">Máximo de 5 salvamentos. Toque em "Abrir" e informe o PIN (ou o PIN administrativo).</p>
+      <div id="gate-msg-list" class="gate-msg error"></div>
+      <div id="slot-list" class="slot-list">
+        <p class="loading-note">Carregando salvamentos…</p>
+      </div>
+    </div>
+
+    <div class="gate-card">
+      <h2>Criar novo salvamento</h2>
+      <p class="gate-card-note">Dê um nome (ex: nome do evento ou da turma) e escolha um PIN de 4 a 6 dígitos para proteger esse salvamento.</p>
+      <div id="gate-msg-create" class="gate-msg error"></div>
+      <label class="field-label" for="new-slot-name">Nome do salvamento</label>
+      <input id="new-slot-name" class="field-input" type="text" placeholder="Ex: Turma A - Setembro" maxlength="40">
+      <label class="field-label" for="new-slot-pin">PIN (4 a 6 dígitos)</label>
+      <input id="new-slot-pin" class="field-input" type="text" inputmode="numeric" placeholder="Ex: 1234" maxlength="6">
+      <button class="primary-btn" id="create-slot-btn">Criar salvamento</button>
+      <p style="font-size:12px;color:var(--text-muted);margin:10px 0 0;">Se os 5 salvamentos já estiverem ocupados, será necessário liberar uma vaga informando o PIN administrativo ou o PIN de um salvamento já existente.</p>
+    </div>
+
+    <div class="gate-footer-links">
+      <button class="link-btn" id="open-manage-btn">Gerenciar salvamentos (remover / liberar vaga)</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===================== MODAL: informar PIN para abrir slot ===================== -->
+<div class="modal-overlay" id="modal-open">
+  <div class="modal-box">
+    <h3 id="modal-open-title">Abrir salvamento</h3>
+    <p class="modal-note">Informe o PIN deste salvamento ou o PIN administrativo.</p>
+    <div id="modal-open-msg" class="gate-msg error"></div>
+    <label class="field-label" for="modal-open-pin">PIN</label>
+    <input id="modal-open-pin" class="field-input" type="text" inputmode="numeric" placeholder="••••" maxlength="6" autocomplete="off">
+    <div class="modal-actions">
+      <button class="secondary-btn" id="modal-open-cancel">Cancelar</button>
+      <button class="primary-btn" id="modal-open-confirm">Abrir</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===================== MODAL: gerenciar / remover salvamento ===================== -->
+<div class="modal-overlay" id="modal-manage">
+  <div class="modal-box">
+    <h3>Gerenciar salvamentos</h3>
+    <p class="modal-note">Remover um salvamento libera uma vaga. Use o PIN do próprio salvamento ou o PIN administrativo.</p>
+    <div id="manage-list" class="slot-list" style="margin-bottom:14px;"></div>
+    <div class="modal-actions">
+      <button class="secondary-btn" id="modal-manage-close" style="flex:1;">Fechar</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===================== MODAL: confirmar remoção com PIN ===================== -->
+<div class="modal-overlay" id="modal-delete">
+  <div class="modal-box">
+    <h3>Remover salvamento</h3>
+    <p class="modal-note" id="modal-delete-note">Informe o PIN deste salvamento ou o PIN administrativo para confirmar a remoção.</p>
+    <div id="modal-delete-msg" class="gate-msg error"></div>
+    <label class="field-label" for="modal-delete-pin">PIN</label>
+    <input id="modal-delete-pin" class="field-input" type="text" inputmode="numeric" placeholder="••••" maxlength="6" autocomplete="off">
+    <div class="modal-actions">
+      <button class="secondary-btn" id="modal-delete-cancel">Cancelar</button>
+      <button class="primary-btn" id="modal-delete-confirm" style="background:var(--empire);color:#fff;">Remover</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===================== APP (visível após desbloquear um salvamento) ===================== -->
+<div id="app-shell">
+<header>
+  <div class="nav-inner">
+    <div class="wordmark">
+      <span class="badge" aria-hidden="true">🚀</span>
+      Rocket!
+    </div>
+    <div class="nav-right">
+      <div class="slot-pill">Salvamento: <strong id="current-slot-name">—</strong></div>
+      <nav class="tabs" role="tablist" aria-label="Seções">
+        <button class="tab-btn active" role="tab" aria-selected="true" data-view="pontuacao">Pontuação</button>
+        <button class="tab-btn" role="tab" aria-selected="false" data-view="placar">Placar</button>
+      </nav>
+      <button class="switch-btn" id="switch-slot-btn">Trocar salvamento</button>
+    </div>
+  </div>
+  <div class="stripe" aria-hidden="true"><span class="empire"></span><span class="rush"></span><span class="power"></span><span class="vision"></span></div>
+</header>
+
+<main>
+
+  <!-- ===================== PONTUAÇÃO ===================== -->
+  <section id="view-pontuacao" class="view active">
+    <div class="view-head">
+      <h1>Pontuação</h1>
+      <p>Registre cada atividade e a pontuação de cada equipe. O placar é atualizado automaticamente.</p>
+    </div>
+
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th class="col-activity">Atividade</th>
+            <th class="col-empire">Empire</th>
+            <th class="col-rush">Rush</th>
+            <th class="col-power">Power</th>
+            <th class="col-vision">Vision</th>
+            <th class="row-actions" aria-label="Remover"></th>
+          </tr>
+        </thead>
+        <tbody id="score-body">
+          <!-- linhas geradas via JS -->
+        </tbody>
+        <tfoot>
+          <tr>
+            <td class="total-label">TOTAL</td>
+            <td class="total-empire" id="foot-empire">0</td>
+            <td class="total-rush" id="foot-rush">0</td>
+            <td class="total-power" id="foot-power">0</td>
+            <td class="total-vision" id="foot-vision">0</td>
+            <td></td>
+          </tr>
+        </tfoot>
+      </table>
+      <div class="table-footer">
+        <button class="add-row-btn" id="add-row"><span class="plus">+</span> Adicionar atividade</button>
+        <div class="save-status" id="save-status"><span class="dot"></span><span id="save-status-text">Salvo</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== PLACAR ===================== -->
+  <section id="view-placar" class="view">
+    <div class="view-head">
+      <h1>Placar</h1>
+      <p>A pontuação total de cada equipe, somando todas as atividades registradas.</p>
+    </div>
+
+    <div class="board-grid" id="board-grid">
+      <div class="board-card c-empire" data-team="empire">
+        <span class="rank" data-rank></span>
+        <span class="team-name">Empire</span>
+        <span class="team-score" data-score>0</span>
+        <span class="team-points-label">pontos</span>
+      </div>
+      <div class="board-card c-rush" data-team="rush">
+        <span class="rank" data-rank></span>
+        <span class="team-name">Rush</span>
+        <span class="team-score" data-score>0</span>
+        <span class="team-points-label">pontos</span>
+      </div>
+      <div class="board-card c-power" data-team="power">
+        <span class="rank" data-rank></span>
+        <span class="team-name">Power</span>
+        <span class="team-score" data-score>0</span>
+        <span class="team-points-label">pontos</span>
+      </div>
+      <div class="board-card c-vision" data-team="vision">
+        <span class="rank" data-rank></span>
+        <span class="team-name">Vision</span>
+        <span class="team-score" data-score>0</span>
+        <span class="team-points-label">pontos</span>
+      </div>
+    </div>
+
+    <p class="board-note">Toda linha adicionada em Pontuação entra automaticamente nesta soma.</p>
+  </section>
+
+</main>
+</div>
+
+<script type="module">
+/* =====================================================================
+   CONFIGURAÇÃO DO FIREBASE
+   ---------------------------------------------------------------------
+   Preencha com os dados do SEU projeto Firebase (Configurações do
+   projeto > Geral > "Seus apps" > SDK setup and configuration).
+   Sem isso preenchido, o app funciona só na tela de aviso abaixo.
+   ===================================================================== */
+const firebaseConfig = {
+  apiKey: "COLE_AQUI_SUA_API_KEY",
+  authDomain: "SEU_PROJETO.firebaseapp.com",
+  projectId: "SEU_PROJETO",
+  storageBucket: "SEU_PROJETO.appspot.com",
+  messagingSenderId: "SEU_SENDER_ID",
+  appId: "SEU_APP_ID"
+};
+
+const ADMIN_PIN = "7474";
+const MAX_SLOTS = 5;
+const TEAMS = ['empire','rush','power','vision'];
+
+/* ---------------------------------------------------------------------
+   Se a config acima não foi preenchida, mostramos um aviso e paramos
+   antes de tentar conectar (evita erro de console confuso pro usuário).
+   --------------------------------------------------------------------- */
+const configWarningEl = document.getElementById('config-warning');
+const looksUnconfigured = !firebaseConfig.apiKey || firebaseConfig.apiKey.startsWith("COLE_AQUI");
+
+if (looksUnconfigured){
+  configWarningEl.classList.add('show');
+  configWarningEl.textContent = "Este arquivo ainda não está conectado a um projeto Firebase. Abra o HTML em um editor de texto e preencha o objeto 'firebaseConfig' no final do arquivo com os dados do seu projeto (Firebase Console > Configurações do projeto). Depois disso, publique os arquivos (Firebase Hosting, GitHub Pages, etc.) para gerar o link público.";
+  document.getElementById('slot-list').innerHTML = '<p class="empty-note">Aguardando configuração do Firebase…</p>';
+  document.getElementById('create-slot-btn').disabled = true;
+} else {
+  initApp();
+}
+
+async function initApp(){
+  const { initializeApp } = await import("https://www.gstatic.com/firebasejs/10.13.0/firebase-app.js");
+  const {
+    getFirestore, collection, addDoc, getDocs, doc, updateDoc, deleteDoc,
+    query, orderBy, getDoc
+  } = await import("https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore.js");
+
+  const app = initializeApp(firebaseConfig);
+  const db = getFirestore(app);
+  const savesCol = collection(db, "rocket_saves");
+
+  /* ---------------- utilidades ---------------- */
+  async function sha256(text){
+    const enc = new TextEncoder().encode(text);
+    const buf = await crypto.subtle.digest('SHA-256', enc);
+    return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2,'0')).join('');
+  }
+
+  function isValidPin(pin){
+    return /^\d{4,6}$/.test(pin);
+  }
+
+  function emptyRow(activity){
+    return { activity: activity || '', empire:'', rush:'', power:'', vision:'' };
+  }
+
+  function formatDate(ts){
+    try{
+      const d = ts?.toDate ? ts.toDate() : new Date(ts);
+      return d.toLocaleDateString('pt-BR', { day:'2-digit', month:'2-digit', year:'numeric' });
+    }catch(e){ return ''; }
+  }
+
+  function showMsg(el, text, type){
+    el.textContent = text;
+    el.className = 'gate-msg show ' + (type || 'error');
+  }
+  function hideMsg(el){
+    el.className = 'gate-msg';
+    el.textContent = '';
+  }
+
+  /* ---------------- estado local do slot aberto ---------------- */
+  let currentSlotId = null;
+  let currentSlotName = null;
+  let state = [emptyRow(), emptyRow(), emptyRow(), emptyRow(), emptyRow()];
+  let saveTimer = null;
+
+  /* ================= GATE: listar salvamentos ================= */
+  const slotListEl = document.getElementById('slot-list');
+  const gateMsgListEl = document.getElementById('gate-msg-list');
+
+  async function fetchSlots(){
+    const q = query(savesCol, orderBy("updatedAt", "desc"));
+    const snap = await getDocs(q);
+    return snap.docs.map(d => ({ id: d.id, ...d.data() }));
+  }
+
+  async function renderSlotList(){
+    slotListEl.innerHTML = '<p class="loading-note">Carregando salvamentos…</p>';
+    hideMsg(gateMsgListEl);
+    try{
+      const slots = await fetchSlots();
+      if(slots.length === 0){
+        slotListEl.innerHTML = '<p class="empty-note">Nenhum salvamento criado ainda. Crie o primeiro abaixo.</p>';
+        return slots;
+      }
+      slotListEl.innerHTML = '';
+      slots.forEach(slot => {
+        const row = document.createElement('div');
+        row.className = 'slot-row';
+        row.innerHTML = `
+          <div class="slot-meta">
+            <span class="slot-name">${escapeHtml(slot.slotName || 'Sem nome')}</span>
+            <span class="slot-date">Atualizado em ${formatDate(slot.updatedAt)}</span>
+          </div>
+        `;
+        const btn = document.createElement('button');
+        btn.className = 'slot-open-btn';
+        btn.textContent = 'Abrir';
+        btn.addEventListener('click', () => openModalFor(slot));
+        row.appendChild(btn);
+        slotListEl.appendChild(row);
+      });
+      return slots;
+    }catch(err){
+      console.error(err);
+      slotListEl.innerHTML = '';
+      showMsg(gateMsgListEl, 'Não foi possível carregar os salvamentos. Verifique a configuração do Firebase e as regras do Firestore.', 'error');
+      return [];
+    }
+  }
+
+  function escapeHtml(str){
+    const d = document.createElement('div');
+    d.textContent = str;
+    return d.innerHTML;
+  }
+
+  /* ================= MODAL: abrir slot com PIN ================= */
+  const modalOpen = document.getElementById('modal-open');
+  const modalOpenTitle = document.getElementById('modal-open-title');
+  const modalOpenPin = document.getElementById('modal-open-pin');
+  const modalOpenMsg = document.getElementById('modal-open-msg');
+  let pendingSlot = null;
+
+  function openModalFor(slot){
+    pendingSlot = slot;
+    modalOpenTitle.textContent = 'Abrir "' + (slot.slotName || 'salvamento') + '"';
+    modalOpenPin.value = '';
+    hideMsg(modalOpenMsg);
+    modalOpen.classList.add('show');
+    setTimeout(() => modalOpenPin.focus(), 50);
+  }
+
+  document.getElementById('modal-open-cancel').addEventListener('click', () => {
+    modalOpen.classList.remove('show');
+    pendingSlot = null;
+  });
+
+  document.getElementById('modal-open-confirm').addEventListener('click', async () => {
+    const pin = modalOpenPin.value.trim();
+    if(!pin){ showMsg(modalOpenMsg, 'Informe o PIN.', 'error'); return; }
+    if(!pendingSlot){ return; }
+
+    if(pin === ADMIN_PIN){
+      await unlockSlot(pendingSlot);
+      return;
+    }
+    const hash = await sha256(pin);
+    if(hash === pendingSlot.pinHash){
+      await unlockSlot(pendingSlot);
+    } else {
+      showMsg(modalOpenMsg, 'PIN incorreto.', 'error');
+    }
+  });
+
+  modalOpenPin.addEventListener('keydown', e => {
+    if(e.key === 'Enter') document.getElementById('modal-open-confirm').click();
+  });
+
+  async function unlockSlot(slot){
+    currentSlotId = slot.id;
+    currentSlotName = slot.slotName || 'Sem nome';
+    state = Array.isArray(slot.state) && slot.state.length ? slot.state : [emptyRow(), emptyRow(), emptyRow(), emptyRow(), emptyRow()];
+    modalOpen.classList.remove('show');
+    document.getElementById('gate').style.display = 'none';
+    document.getElementById('app-shell').classList.add('visible');
+    document.getElementById('current-slot-name').textContent = currentSlotName;
+    renderTable();
+  }
+
+  /* ================= Criar novo salvamento ================= */
+  const newSlotNameEl = document.getElementById('new-slot-name');
+  const newSlotPinEl = document.getElementById('new-slot-pin');
+  const createSlotBtn = document.getElementById('create-slot-btn');
+  const gateMsgCreateEl = document.getElementById('gate-msg-create');
+
+  createSlotBtn.addEventListener('click', async () => {
+    hideMsg(gateMsgCreateEl);
+    const name = newSlotNameEl.value.trim();
+    const pin = newSlotPinEl.value.trim();
+
+    if(!name){ showMsg(gateMsgCreateEl, 'Dê um nome para o salvamento.', 'error'); return; }
+    if(!isValidPin(pin)){ showMsg(gateMsgCreateEl, 'O PIN deve ter de 4 a 6 dígitos numéricos.', 'error'); return; }
+
+    createSlotBtn.disabled = true;
+    try{
+      const slots = await fetchSlots();
+      if(slots.length >= MAX_SLOTS){
+        showMsg(gateMsgCreateEl, 'Limite de ' + MAX_SLOTS + ' salvamentos atingido. Remova um salvamento existente em "Gerenciar salvamentos" (com o PIN dele ou o PIN administrativo) para liberar uma vaga.', 'error');
+        createSlotBtn.disabled = false;
+        return;
+      }
+      const pinHash = await sha256(pin);
+      const docRef = await addDoc(savesCol, {
+        slotName: name,
+        pinHash: pinHash,
+        state: [emptyRow(), emptyRow(), emptyRow(), emptyRow(), emptyRow()],
+        createdAt: new Date(),
+        updatedAt: new Date()
+      });
+      newSlotNameEl.value = '';
+      newSlotPinEl.value = '';
+      showMsg(gateMsgCreateEl, 'Salvamento criado! Abrindo…', 'ok');
+      const newSlot = { id: docRef.id, slotName: name, pinHash, state: [emptyRow(), emptyRow(), emptyRow(), emptyRow(), emptyRow()] };
+      await unlockSlot(newSlot);
+      await renderSlotList();
+    }catch(err){
+      console.error(err);
+      showMsg(gateMsgCreateEl, 'Erro ao criar o salvamento. Verifique a configuração do Firebase e as regras do Firestore.', 'error');
+    }finally{
+      createSlotBtn.disabled = false;
+    }
+  });
+
+  /* ================= Gerenciar / remover salvamentos ================= */
+  const modalManage = document.getElementById('modal-manage');
+  const manageListEl = document.getElementById('manage-list');
+
+  document.getElementById('open-manage-btn').addEventListener('click', async () => {
+    modalManage.classList.add('show');
+    await renderManageList();
+  });
+  document.getElementById('modal-manage-close').addEventListener('click', () => {
+    modalManage.classList.remove('show');
+  });
+
+  async function renderManageList(){
+    manageListEl.innerHTML = '<p class="loading-note">Carregando…</p>';
+    const slots = await fetchSlots();
+    if(slots.length === 0){
+      manageListEl.innerHTML = '<p class="empty-note">Nenhum salvamento criado ainda.</p>';
+      return;
+    }
+    manageListEl.innerHTML = '';
+    slots.forEach(slot => {
+      const row = document.createElement('div');
+      row.className = 'slot-row';
+      row.innerHTML = `
+        <div class="slot-meta">
+          <span class="slot-name">${escapeHtml(slot.slotName || 'Sem nome')}</span>
+          <span class="slot-date">Atualizado em ${formatDate(slot.updatedAt)}</span>
+        </div>
+      `;
+      const btn = document.createElement('button');
+      btn.className = 'slot-open-btn';
+      btn.textContent = 'Remover';
+      btn.style.borderColor = 'rgba(226,55,68,0.5)';
+      btn.style.color = '#ff9aa3';
+      btn.addEventListener('click', () => openDeleteModal(slot));
+      row.appendChild(btn);
+      manageListEl.appendChild(row);
+    });
+  }
+
+  const modalDelete = document.getElementById('modal-delete');
+  const modalDeleteNote = document.getElementById('modal-delete-note');
+  const modalDeletePin = document.getElementById('modal-delete-pin');
+  const modalDeleteMsg = document.getElementById('modal-delete-msg');
+  let pendingDeleteSlot = null;
+
+  function openDeleteModal(slot){
+    pendingDeleteSlot = slot;
+    modalDeleteNote.textContent = 'Remover "' + (slot.slotName || 'salvamento') + '". Informe o PIN deste salvamento ou o PIN administrativo para confirmar.';
+    modalDeletePin.value = '';
+    hideMsg(modalDeleteMsg);
+    modalDelete.classList.add('show');
+    setTimeout(() => modalDeletePin.focus(), 50);
+  }
+
+  document.getElementById('modal-delete-cancel').addEventListener('click', () => {
+    modalDelete.classList.remove('show');
+    pendingDeleteSlot = null;
+  });
+
+  document.getElementById('modal-delete-confirm').addEventListener('click', async () => {
+    const pin = modalDeletePin.value.trim();
+    if(!pin){ showMsg(modalDeleteMsg, 'Informe o PIN.', 'error'); return; }
+    if(!pendingDeleteSlot){ return; }
+
+    let authorized = pin === ADMIN_PIN;
+    if(!authorized){
+      const hash = await sha256(pin);
+      authorized = hash === pendingDeleteSlot.pinHash;
+    }
+    if(!authorized){
+      showMsg(modalDeleteMsg, 'PIN incorreto.', 'error');
+      return;
+    }
+    try{
+      await deleteDoc(doc(db, "rocket_saves", pendingDeleteSlot.id));
+      modalDelete.classList.remove('show');
+      await renderManageList();
+      await renderSlotList();
+      if(currentSlotId === pendingDeleteSlot.id){
+        // se o usuário removeu o salvamento que estava aberto, volta pro gate
+        goToGate();
+      }
+    }catch(err){
+      console.error(err);
+      showMsg(modalDeleteMsg, 'Erro ao remover. Tente novamente.', 'error');
+    }
+  });
+
+  modalDeletePin.addEventListener('keydown', e => {
+    if(e.key === 'Enter') document.getElementById('modal-delete-confirm').click();
+  });
+
+  /* ================= Trocar salvamento (voltar ao gate) ================= */
+  document.getElementById('switch-slot-btn').addEventListener('click', () => {
+    goToGate();
+  });
+
+  function goToGate(){
+    currentSlotId = null;
+    currentSlotName = null;
+    document.getElementById('app-shell').classList.remove('visible');
+    document.getElementById('gate').style.display = 'flex';
+    renderSlotList();
+  }
+
+  /* ================= Tabela de pontuação (mesma lógica de antes, agora salvando no Firestore) ================= */
+  const tbody = document.getElementById('score-body');
+  const addRowBtn = document.getElementById('add-row');
+  const saveStatusEl = document.getElementById('save-status');
+  const saveStatusTextEl = document.getElementById('save-status-text');
+
+  function scheduleSave(){
+    saveStatusEl.classList.add('saving');
+    saveStatusEl.classList.remove('error');
+    saveStatusTextEl.textContent = 'Salvando…';
+    clearTimeout(saveTimer);
+    saveTimer = setTimeout(doSave, 700);
+  }
+
+  async function doSave(){
+    if(!currentSlotId) return;
+    try{
+      await updateDoc(doc(db, "rocket_saves", currentSlotId), {
+        state: state,
+        updatedAt: new Date()
+      });
+      saveStatusEl.classList.remove('saving', 'error');
+      saveStatusTextEl.textContent = 'Salvo';
+    }catch(err){
+      console.error(err);
+      saveStatusEl.classList.remove('saving');
+      saveStatusEl.classList.add('error');
+      saveStatusTextEl.textContent = 'Erro ao salvar';
+    }
+  }
+
+  function buildRow(row, index){
+    const tr = document.createElement('tr');
+
+    const tdActivity = document.createElement('td');
+    const activityInput = document.createElement('input');
+    activityInput.type = 'text';
+    activityInput.className = 'activity-input';
+    activityInput.placeholder = 'Nome da atividade';
+    activityInput.value = row.activity;
+    activityInput.setAttribute('aria-label', 'Atividade');
+    activityInput.addEventListener('input', e => {
+      state[index].activity = e.target.value;
+      scheduleSave();
+    });
+    tdActivity.appendChild(activityInput);
+    tr.appendChild(tdActivity);
+
+    TEAMS.forEach(team => {
+      const td = document.createElement('td');
+      td.className = 'score-cell ' + team;
+      const input = document.createElement('input');
+      input.type = 'number';
+      input.inputMode = 'numeric';
+      input.className = 'score-input';
+      input.placeholder = '0';
+      input.value = row[team];
+      input.setAttribute('aria-label', team.charAt(0).toUpperCase() + team.slice(1));
+      input.addEventListener('input', e => {
+        state[index][team] = e.target.value;
+        scheduleSave();
+        recalcTotals();
+      });
+      td.appendChild(input);
+      tr.appendChild(td);
+    });
+
+    const tdActions = document.createElement('td');
+    tdActions.className = 'row-actions';
+    const removeBtn = document.createElement('button');
+    removeBtn.className = 'remove-row';
+    removeBtn.setAttribute('aria-label', 'Remover atividade');
+    removeBtn.innerHTML = '&times;';
+    removeBtn.addEventListener('click', () => {
+      state.splice(index, 1);
+      if(state.length === 0) state.push(emptyRow());
+      scheduleSave();
+      renderTable();
+    });
+    tdActions.appendChild(removeBtn);
+    tr.appendChild(tdActions);
+
+    return tr;
+  }
+
+  function renderTable(){
+    tbody.innerHTML = '';
+    state.forEach((row, i) => tbody.appendChild(buildRow(row, i)));
+    recalcTotals();
+  }
+
+  function sumTeam(team){
+    return state.reduce((sum, row) => sum + (parseFloat(row[team]) || 0), 0);
+  }
+
+  function recalcTotals(){
+    const totals = {};
+    TEAMS.forEach(team => { totals[team] = sumTeam(team); });
+
+    document.getElementById('foot-empire').textContent = totals.empire;
+    document.getElementById('foot-rush').textContent = totals.rush;
+    document.getElementById('foot-power').textContent = totals.power;
+    document.getElementById('foot-vision').textContent = totals.vision;
+
+    updateBoard(totals);
+  }
+
+  function updateBoard(totals){
+    const cards = Array.from(document.querySelectorAll('.board-card'));
+    cards.forEach(card => {
+      const team = card.dataset.team;
+      card.querySelector('[data-score]').textContent = totals[team];
+    });
+
+    const ranked = TEAMS.slice().sort((a,b) => totals[b] - totals[a]);
+    const topScore = totals[ranked[0]];
+
+    cards.forEach(card => {
+      const team = card.dataset.team;
+      const position = ranked.indexOf(team) + 1;
+      card.querySelector('[data-rank]').textContent = position + 'º lugar';
+      card.classList.toggle('leader', totals[team] === topScore && topScore > 0);
+    });
+  }
+
+  addRowBtn.addEventListener('click', () => {
+    state.push(emptyRow());
+    scheduleSave();
+    renderTable();
+    const inputs = tbody.querySelectorAll('tr:last-child .activity-input');
+    if(inputs.length) inputs[inputs.length - 1].focus();
+  });
+
+  // ---- tabs ----
+  const tabButtons = document.querySelectorAll('.tab-btn');
+  const views = {
+    pontuacao: document.getElementById('view-pontuacao'),
+    placar: document.getElementById('view-placar')
+  };
+  tabButtons.forEach(btn => {
+    btn.addEventListener('click', () => {
+      tabButtons.forEach(b => { b.classList.remove('active'); b.setAttribute('aria-selected','false'); });
+      btn.classList.add('active');
+      btn.setAttribute('aria-selected','true');
+      Object.values(views).forEach(v => v.classList.remove('active'));
+      views[btn.dataset.view].classList.add('active');
+    });
+  });
+
+  /* ---------------- inicializa a lista de salvamentos no gate ---------------- */
+  renderSlotList();
+}
+</script>
+
+</body>
+</html>
