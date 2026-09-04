@@ -28,6 +28,10 @@
 
   *{ box-sizing:border-box; }
   html{ scroll-behavior:smooth; }
+  html, body{
+    max-width:100%;
+    overflow-x:hidden;
+  }
   body{
     margin:0;
     background:var(--bg);
@@ -178,10 +182,13 @@
     background:var(--surface);
     border:1px solid var(--line);
     border-radius:14px;
-    overflow:hidden;
+    overflow-x:auto;
+    overflow-y:hidden;
+    -webkit-overflow-scrolling:touch;
   }
   table{
     width:100%;
+    min-width:640px;
     border-collapse:collapse;
   }
   thead th{
@@ -195,11 +202,20 @@
   thead th.col-activity{
     color:var(--text-muted);
     background:var(--surface-2);
+    min-width:180px;
+  }
+  thead th.col-empire,
+  thead th.col-rush,
+  thead th.col-power,
+  thead th.col-vision{
+    min-width:90px;
+    text-align:center;
   }
   thead th.col-empire{ background:var(--empire); }
   thead th.col-rush{ background:var(--rush); }
   thead th.col-power{ background:var(--power); }
   thead th.col-vision{ background:var(--vision); color:#1c1600; }
+  thead th.row-actions{ min-width:44px; }
 
   tbody td{
     padding:0;
