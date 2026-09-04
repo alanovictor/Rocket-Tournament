@@ -29,8 +29,8 @@ This project was developed with the following technologies:<br>
 É uma página web, criada para organização de evento.<br>
 It is a webpage created for a event.
 
-- [Access the finished project online](#)<br>
-- [Acesse o projeto finalizado online](#)
+- [Access the finished project online](https://alanovictor.github.io/Rocket-Tournament/)<br>
+- [Acesse o projeto finalizado online](https://alanovictor.github.io/Rocket-Tournament/)
 
 
 ## :memo: License-Licença
