@@ -201,9 +201,6 @@
     font-weight:700;
     color:#fff;
     white-space:nowrap;
-    position:sticky;
-    top:var(--sticky-offset, 80px);
-    z-index:15;
   }
   thead th.col-activity{
     color:var(--text-muted);
@@ -214,7 +211,7 @@
     min-width:96px;
     text-align:center;
   }
-  thead th.row-actions{ min-width:44px; background:var(--surface); }
+  thead th.row-actions{ min-width:44px; }
 
   .team-head{
     display:flex;
@@ -1612,19 +1609,6 @@ async function initApp(){
       views[btn.dataset.view].classList.add('active');
     });
   });
-
-  // ---- cabeçalho fixo da tabela (acompanha a rolagem) ----
-  const stickyHeaderEl = document.querySelector('header');
-  function updateStickyOffset(){
-    if(stickyHeaderEl){
-      document.documentElement.style.setProperty('--sticky-offset', stickyHeaderEl.offsetHeight + 'px');
-    }
-  }
-  updateStickyOffset();
-  window.addEventListener('resize', updateStickyOffset);
-  if(window.ResizeObserver && stickyHeaderEl){
-    new ResizeObserver(updateStickyOffset).observe(stickyHeaderEl);
-  }
 
   /* ---------------- inicializa a lista de salvamentos no gate ---------------- */
   renderSlotList();
