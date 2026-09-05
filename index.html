@@ -200,6 +200,9 @@
     font-weight:700;
     color:#fff;
     white-space:nowrap;
+    position:sticky;
+    top:var(--sticky-offset, 80px);
+    z-index:15;
   }
   thead th.col-activity{
     color:var(--text-muted);
@@ -210,7 +213,7 @@
     min-width:96px;
     text-align:center;
   }
-  thead th.row-actions{ min-width:44px; }
+  thead th.row-actions{ min-width:44px; background:var(--surface); }
 
   .team-head{
     display:flex;
@@ -231,6 +234,7 @@
     font-family:inherit;
   }
   .team-name-input::placeholder{ color:inherit; opacity:0.7; }
+  .team-name-input:disabled{ opacity:0.75; cursor:not-allowed; }
   .team-name-input:focus-visible{ outline:2px solid rgba(255,255,255,0.6); outline-offset:1px; border-radius:4px; }
   .remove-team-btn{
     border:none;
@@ -1385,7 +1389,7 @@ async function initApp(){
       const removeBtnHtml = teamsLocked ? '' : `<button type="button" class="remove-team-btn" data-team-id="${t.id}" title="Remover equipe" aria-label="Remover equipe">&times;</button>`;
       html += `<th class="col-team" style="background:${t.color};color:${fg}">
         <div class="team-head">
-          <input type="text" class="team-name-input" data-team-id="${t.id}" value="${escapeHtml(t.name)}" maxlength="24" aria-label="Nome da equipe">
+          <input type="text" class="team-name-input" data-team-id="${t.id}" value="${escapeHtml(t.name)}" maxlength="24" aria-label="Nome da equipe"${teamsLocked ? ' disabled' : ''}>
           ${removeBtnHtml}
         </div>
       </th>`;
@@ -1436,7 +1440,7 @@ async function initApp(){
 
   theadRow.addEventListener('input', e => {
     const input = e.target.closest('.team-name-input');
-    if(!input) return;
+    if(!input || teamsLocked) return;
     const team = teams.find(t => t.id === input.dataset.teamId);
     if(team){
       team.name = input.value;
@@ -1575,6 +1579,7 @@ async function initApp(){
       const position = ranked.indexOf(teamId) + 1;
       const rankEl = card.querySelector('[data-rank]');
       if(rankEl) rankEl.textContent = position + 'º lugar';
+      card.style.order = position;
       card.classList.toggle('leader', totals[teamId] === topScore && topScore > 0);
     });
   }
@@ -1606,6 +1611,19 @@ async function initApp(){
       views[btn.dataset.view].classList.add('active');
     });
   });
+
+  // ---- cabeçalho fixo da tabela (acompanha a rolagem) ----
+  const stickyHeaderEl = document.querySelector('header');
+  function updateStickyOffset(){
+    if(stickyHeaderEl){
+      document.documentElement.style.setProperty('--sticky-offset', stickyHeaderEl.offsetHeight + 'px');
+    }
+  }
+  updateStickyOffset();
+  window.addEventListener('resize', updateStickyOffset);
+  if(window.ResizeObserver && stickyHeaderEl){
+    new ResizeObserver(updateStickyOffset).observe(stickyHeaderEl);
+  }
 
   /* ---------------- inicializa a lista de salvamentos no gate ---------------- */
   renderSlotList();
