@@ -206,18 +206,47 @@
     background:var(--surface-2);
     min-width:180px;
   }
-  thead th.col-empire,
-  thead th.col-rush,
-  thead th.col-power,
-  thead th.col-vision{
-    min-width:90px;
+  thead th.col-team{
+    min-width:96px;
     text-align:center;
   }
-  thead th.col-empire{ background:var(--empire); }
-  thead th.col-rush{ background:var(--rush); }
-  thead th.col-power{ background:var(--power); }
-  thead th.col-vision{ background:var(--vision); color:#1c1600; }
   thead th.row-actions{ min-width:44px; }
+
+  .team-head{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:4px;
+  }
+  .team-name-input{
+    background:transparent;
+    border:none;
+    font-size:13.5px;
+    font-weight:700;
+    text-align:center;
+    color:inherit;
+    width:100%;
+    min-width:0;
+    padding:2px;
+    font-family:inherit;
+  }
+  .team-name-input::placeholder{ color:inherit; opacity:0.7; }
+  .team-name-input:focus-visible{ outline:2px solid rgba(255,255,255,0.6); outline-offset:1px; border-radius:4px; }
+  .remove-team-btn{
+    border:none;
+    background:rgba(0,0,0,0.18);
+    color:inherit;
+    width:18px; height:18px;
+    min-width:18px;
+    border-radius:50%;
+    font-size:13px;
+    line-height:1;
+    cursor:pointer;
+    flex-shrink:0;
+    display:flex; align-items:center; justify-content:center;
+    transition:background .15s ease;
+  }
+  .remove-team-btn:hover{ background:rgba(0,0,0,0.35); }
 
   tbody td{
     padding:0;
@@ -251,10 +280,7 @@
     font-variant-numeric:tabular-nums;
     font-family:inherit;
   }
-  .score-cell.empire{ background:var(--empire-tint); }
-  .score-cell.rush{ background:var(--rush-tint); }
-  .score-cell.power{ background:var(--power-tint); }
-  .score-cell.vision{ background:var(--vision-tint); }
+  /* fundo de cada célula de pontuação é definido via inline style (cor da equipe) */
 
   .row-actions{
     width:44px;
@@ -286,10 +312,7 @@
     font-weight:700;
     letter-spacing:0.01em;
   }
-  tfoot .total-empire{ background:var(--empire); color:#fff; text-align:center; }
-  tfoot .total-rush{ background:var(--rush); color:#fff; text-align:center; }
-  tfoot .total-power{ background:var(--power); color:#fff; text-align:center; }
-  tfoot .total-vision{ background:var(--vision); color:#1c1600; text-align:center; }
+  tfoot .total-team{ text-align:center; }
 
   .table-footer{
     padding:16px 18px;
@@ -339,11 +362,46 @@
     font-size:16px;
     line-height:1;
   }
+  .add-row-btn:disabled{
+    opacity:0.4;
+    cursor:not-allowed;
+    background:transparent;
+  }
+
+  .teams-toolbar{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    margin-bottom:14px;
+    flex-wrap:wrap;
+  }
+  .team-count-label{
+    font-size:12.5px;
+    color:var(--text-muted);
+  }
+  .lock-btn{
+    border:1px solid var(--line);
+    background:transparent;
+    color:var(--text-muted);
+    width:38px; height:38px;
+    border-radius:9px;
+    font-size:16px;
+    cursor:pointer;
+    display:flex; align-items:center; justify-content:center;
+    transition:border-color .15s ease, color .15s ease, background .15s ease;
+    flex-shrink:0;
+  }
+  .lock-btn:hover{ border-color:rgba(255,255,255,0.4); color:var(--text); }
+  .lock-btn.locked{
+    color:var(--vision);
+    border-color:rgba(242,183,5,0.5);
+    background:rgba(242,183,5,0.08);
+  }
 
   /* ---------- Placar ---------- */
   .board-grid{
     display:grid;
-    grid-template-columns:repeat(4, 1fr);
+    grid-template-columns:repeat(auto-fill, minmax(190px, 1fr));
     gap:18px;
   }
   .board-card{
@@ -383,10 +441,7 @@
     margin-top:2px;
   }
 
-  .board-card.c-empire{ background:linear-gradient(160deg, var(--empire), #8f151d); color:#fff; --card-color: rgba(226,55,68,0.35); }
-  .board-card.c-rush{ background:linear-gradient(160deg, var(--rush), #1c4aa8); color:#fff; --card-color: rgba(47,111,237,0.35); }
-  .board-card.c-power{ background:linear-gradient(160deg, var(--power), #14663f); color:#fff; --card-color: rgba(34,165,103,0.35); }
-  .board-card.c-vision{ background:linear-gradient(160deg, var(--vision), #b58900); color:#211a00; --card-color: rgba(242,183,5,0.35); }
+  /* cores dos cards do placar são definidas via inline style (cor de cada equipe) */
 
   .board-note{
     margin-top:28px;
@@ -396,7 +451,6 @@
   }
 
   @media (max-width: 860px){
-    .board-grid{ grid-template-columns:repeat(2, 1fr); }
     .nav-inner{ padding:14px 18px; }
     main{ padding:32px 18px 72px; }
   }
@@ -407,9 +461,9 @@
     .slot-pill strong{ overflow:hidden; text-overflow:ellipsis; white-space:nowrap; display:inline-block; max-width:120px; vertical-align:bottom; }
     .tabs{ order:2; }
     .switch-btn{ order:3; width:100%; text-align:center; }
+    .rename-btn{ order:4; width:100%; text-align:center; }
   }
   @media (max-width: 520px){
-    .board-grid{ grid-template-columns:1fr; }
     thead th, .activity-input{ font-size:13px; }
     .view-head h1{ font-size:26px; }
     .board-card.leader{ transform:none; }
@@ -739,6 +793,21 @@
   </div>
 </div>
 
+<!-- ===================== MODAL: renomear salvamento ===================== -->
+<div class="modal-overlay" id="modal-rename">
+  <div class="modal-box">
+    <h3>Renomear salvamento</h3>
+    <p class="modal-note">Escolha um novo nome para este salvamento.</p>
+    <div id="modal-rename-msg" class="gate-msg error"></div>
+    <label class="field-label" for="modal-rename-input">Novo nome</label>
+    <input id="modal-rename-input" class="field-input" type="text" maxlength="40" placeholder="Ex: Turma A - Setembro" autocomplete="off">
+    <div class="modal-actions">
+      <button class="secondary-btn" id="modal-rename-cancel">Cancelar</button>
+      <button class="primary-btn" id="modal-rename-confirm">Salvar</button>
+    </div>
+  </div>
+</div>
+
 <!-- ===================== APP (visível após desbloquear um salvamento) ===================== -->
 <div id="app-shell">
 <header>
@@ -753,6 +822,7 @@
         <button class="tab-btn active" role="tab" aria-selected="true" data-view="pontuacao">Pontuação</button>
         <button class="tab-btn" role="tab" aria-selected="false" data-view="placar">Placar</button>
       </nav>
+      <button class="switch-btn rename-btn" id="rename-slot-btn">Renomear salvamento</button>
       <button class="switch-btn" id="switch-slot-btn">Trocar salvamento</button>
     </div>
   </div>
@@ -768,29 +838,25 @@
       <p>Registre cada atividade e a pontuação de cada equipe. O placar é atualizado automaticamente.</p>
     </div>
 
+    <div class="teams-toolbar">
+      <button class="add-row-btn" id="add-team-btn"><span class="plus">+</span> Adicionar equipe</button>
+      <button class="lock-btn" id="lock-teams-btn" type="button">🔓</button>
+      <span class="team-count-label" id="team-count-label">0/100 equipes</span>
+    </div>
+
     <div class="table-wrap">
-      <table>
+      <table id="score-table">
         <thead>
-          <tr>
-            <th class="col-activity">Atividade</th>
-            <th class="col-empire">Empire</th>
-            <th class="col-rush">Rush</th>
-            <th class="col-power">Power</th>
-            <th class="col-vision">Vision</th>
-            <th class="row-actions" aria-label="Remover"></th>
+          <tr id="thead-row">
+            <!-- gerado via JS -->
           </tr>
         </thead>
         <tbody id="score-body">
           <!-- linhas geradas via JS -->
         </tbody>
         <tfoot>
-          <tr>
-            <td class="total-label">TOTAL</td>
-            <td class="total-empire" id="foot-empire">0</td>
-            <td class="total-rush" id="foot-rush">0</td>
-            <td class="total-power" id="foot-power">0</td>
-            <td class="total-vision" id="foot-vision">0</td>
-            <td></td>
+          <tr id="tfoot-row">
+            <!-- gerado via JS -->
           </tr>
         </tfoot>
       </table>
@@ -809,30 +875,7 @@
     </div>
 
     <div class="board-grid" id="board-grid">
-      <div class="board-card c-empire" data-team="empire">
-        <span class="rank" data-rank></span>
-        <span class="team-name">Empire</span>
-        <span class="team-score" data-score>0</span>
-        <span class="team-points-label">pontos</span>
-      </div>
-      <div class="board-card c-rush" data-team="rush">
-        <span class="rank" data-rank></span>
-        <span class="team-name">Rush</span>
-        <span class="team-score" data-score>0</span>
-        <span class="team-points-label">pontos</span>
-      </div>
-      <div class="board-card c-power" data-team="power">
-        <span class="rank" data-rank></span>
-        <span class="team-name">Power</span>
-        <span class="team-score" data-score>0</span>
-        <span class="team-points-label">pontos</span>
-      </div>
-      <div class="board-card c-vision" data-team="vision">
-        <span class="rank" data-rank></span>
-        <span class="team-name">Vision</span>
-        <span class="team-score" data-score>0</span>
-        <span class="team-points-label">pontos</span>
-      </div>
+      <!-- gerado via JS -->
     </div>
 
     <p class="board-note">Toda linha adicionada em Pontuação entra automaticamente nesta soma.</p>
@@ -861,7 +904,9 @@ const firebaseConfig = {
 
 const ADMIN_PIN = "7474";
 const MAX_SLOTS = 5;
-const TEAMS = ['empire','rush','power','vision'];
+const MAX_TEAMS = 100;
+const MAX_ROWS = 500;
+const COLOR_PALETTE = ['#E23744','#2F6FED','#22A567','#F2B705','#F2790B','#8B5CF6','#EC4899','#6B7280'];
 
 /* ---------------------------------------------------------------------
    Se a config acima não foi preenchida, mostramos um aviso e paramos
@@ -902,7 +947,62 @@ async function initApp(){
   }
 
   function emptyRow(activity){
-    return { activity: activity || '', empire:'', rush:'', power:'', vision:'' };
+    const scores = {};
+    teams.forEach(t => { scores[t.id] = ''; });
+    return { activity: activity || '', scores };
+  }
+
+  /* ---------------- cores / equipes ---------------- */
+  function hexToRgb(hex){
+    hex = (hex || '#888888').replace('#','');
+    if(hex.length === 3) hex = hex.split('').map(c => c + c).join('');
+    const num = parseInt(hex, 16) || 0x888888;
+    return { r:(num>>16)&255, g:(num>>8)&255, b:num&255 };
+  }
+  function rgbaColor(hex, alpha){
+    const { r, g, b } = hexToRgb(hex);
+    return `rgba(${r},${g},${b},${alpha})`;
+  }
+  function shadeColor(hex, percent){
+    const { r, g, b } = hexToRgb(hex);
+    const t = percent < 0 ? 0 : 255;
+    const p = Math.abs(percent);
+    const nr = Math.round((t - r) * p) + r;
+    const ng = Math.round((t - g) * p) + g;
+    const nb = Math.round((t - b) * p) + b;
+    return `rgb(${nr},${ng},${nb})`;
+  }
+  function textColorFor(hex){
+    const { r, g, b } = hexToRgb(hex);
+    const lum = (0.299 * r + 0.587 * g + 0.114 * b) / 255;
+    return lum > 0.62 ? '#1c1600' : '#ffffff';
+  }
+  function makeTeamId(){
+    return 'team_' + Date.now().toString(36) + '_' + Math.random().toString(36).slice(2, 8);
+  }
+  function freshDefaultTeams(){
+    const names = ['Equipe 1', 'Equipe 2', 'Equipe 3', 'Equipe 4'];
+    return names.map((name, i) => ({ id: makeTeamId(), name, color: COLOR_PALETTE[i % COLOR_PALETTE.length] }));
+  }
+  function legacyDefaultTeams(){
+    // Equipes padrão de versões antigas do arquivo (sem suporte a equipes dinâmicas)
+    return [
+      { id:'empire', name:'Empire', color:'#E23744' },
+      { id:'rush', name:'Rush', color:'#2F6FED' },
+      { id:'power', name:'Power', color:'#22A567' },
+      { id:'vision', name:'Vision', color:'#F2B705' }
+    ];
+  }
+  function migrateRow(r){
+    if(r && r.scores && typeof r.scores === 'object'){
+      const scores = { ...r.scores };
+      teams.forEach(t => { if(!(t.id in scores)) scores[t.id] = ''; });
+      return { activity: r.activity || '', scores };
+    }
+    // formato antigo: chaves de pontuação direto no objeto da linha
+    const scores = {};
+    teams.forEach(t => { scores[t.id] = (r && r[t.id] !== undefined) ? r[t.id] : ''; });
+    return { activity: (r && r.activity) || '', scores };
   }
 
   function formatDate(ts){
@@ -924,7 +1024,9 @@ async function initApp(){
   /* ---------------- estado local do slot aberto ---------------- */
   let currentSlotId = null;
   let currentSlotName = null;
-  let state = [emptyRow(), emptyRow(), emptyRow(), emptyRow(), emptyRow()];
+  let teams = [];
+  let teamsLocked = false;
+  let state = [];
   let saveTimer = null;
 
   /* ================= GATE: listar salvamentos ================= */
@@ -1036,11 +1138,14 @@ async function initApp(){
   async function unlockSlot(slot){
     currentSlotId = slot.id;
     currentSlotName = slot.slotName || 'Sem nome';
-    state = Array.isArray(slot.state) && slot.state.length ? slot.state : [emptyRow(), emptyRow(), emptyRow(), emptyRow(), emptyRow()];
+    teams = (Array.isArray(slot.teams) && slot.teams.length) ? slot.teams.map(t => ({ id:t.id, name:t.name, color:t.color })) : legacyDefaultTeams();
+    teamsLocked = !!slot.teamsLocked;
+    state = (Array.isArray(slot.state) && slot.state.length) ? slot.state.map(migrateRow) : [emptyRow(), emptyRow(), emptyRow(), emptyRow(), emptyRow()];
     modalOpen.classList.remove('show');
     document.getElementById('gate').style.display = 'none';
     document.getElementById('app-shell').classList.add('visible');
     document.getElementById('current-slot-name').textContent = currentSlotName;
+    renderTeamsUI();
     renderTable();
   }
 
@@ -1067,17 +1172,21 @@ async function initApp(){
         return;
       }
       const pinHash = await sha256(pin);
+      const newTeams = freshDefaultTeams();
+      const newState = [0,1,2,3,4].map(() => ({ activity:'', scores: Object.fromEntries(newTeams.map(t => [t.id, ''])) }));
       const docRef = await addDoc(savesCol, {
         slotName: name,
         pinHash: pinHash,
-        state: [emptyRow(), emptyRow(), emptyRow(), emptyRow(), emptyRow()],
+        teams: newTeams,
+        teamsLocked: false,
+        state: newState,
         createdAt: new Date(),
         updatedAt: new Date()
       });
       newSlotNameEl.value = '';
       newSlotPinEl.value = '';
       showMsg(gateMsgCreateEl, 'Salvamento criado! Abrindo…', 'ok');
-      const newSlot = { id: docRef.id, slotName: name, pinHash, state: [emptyRow(), emptyRow(), emptyRow(), emptyRow(), emptyRow()] };
+      const newSlot = { id: docRef.id, slotName: name, pinHash, teams: newTeams, teamsLocked: false, state: newState };
       await unlockSlot(newSlot);
       await renderSlotList();
     }catch(err){
@@ -1194,6 +1303,39 @@ async function initApp(){
     renderSlotList();
   }
 
+  /* ================= Renomear salvamento ================= */
+  const modalRename = document.getElementById('modal-rename');
+  const modalRenameInput = document.getElementById('modal-rename-input');
+  const modalRenameMsg = document.getElementById('modal-rename-msg');
+
+  document.getElementById('rename-slot-btn').addEventListener('click', () => {
+    if(!currentSlotId) return;
+    modalRenameInput.value = currentSlotName || '';
+    hideMsg(modalRenameMsg);
+    modalRename.classList.add('show');
+    setTimeout(() => modalRenameInput.focus(), 50);
+  });
+  document.getElementById('modal-rename-cancel').addEventListener('click', () => {
+    modalRename.classList.remove('show');
+  });
+  document.getElementById('modal-rename-confirm').addEventListener('click', async () => {
+    const name = modalRenameInput.value.trim();
+    if(!name){ showMsg(modalRenameMsg, 'Dê um nome para o salvamento.', 'error'); return; }
+    if(!currentSlotId) return;
+    try{
+      await updateDoc(doc(db, "rocket_saves", currentSlotId), { slotName: name, updatedAt: new Date() });
+      currentSlotName = name;
+      document.getElementById('current-slot-name').textContent = name;
+      modalRename.classList.remove('show');
+    }catch(err){
+      console.error(err);
+      showMsg(modalRenameMsg, 'Erro ao renomear. Tente novamente.', 'error');
+    }
+  });
+  modalRenameInput.addEventListener('keydown', e => {
+    if(e.key === 'Enter') document.getElementById('modal-rename-confirm').click();
+  });
+
   /* ================= Tabela de pontuação (mesma lógica de antes, agora salvando no Firestore) ================= */
   const tbody = document.getElementById('score-body');
   const addRowBtn = document.getElementById('add-row');
@@ -1213,6 +1355,8 @@ async function initApp(){
     try{
       await updateDoc(doc(db, "rocket_saves", currentSlotId), {
         state: state,
+        teams: teams,
+        teamsLocked: teamsLocked,
         updatedAt: new Date()
       });
       saveStatusEl.classList.remove('saving', 'error');
@@ -1224,6 +1368,119 @@ async function initApp(){
       saveStatusTextEl.textContent = 'Erro ao salvar';
     }
   }
+
+  /* ---------------- cabeçalho / rodapé / placar (gerados a partir de `teams`) ---------------- */
+  const theadRow = document.getElementById('thead-row');
+  const tfootRow = document.getElementById('tfoot-row');
+  const boardGrid = document.getElementById('board-grid');
+  const addTeamBtn = document.getElementById('add-team-btn');
+  const lockTeamsBtn = document.getElementById('lock-teams-btn');
+  const teamCountLabel = document.getElementById('team-count-label');
+  const scoreTable = document.getElementById('score-table');
+
+  function renderThead(){
+    let html = '<th class="col-activity">Atividade</th>';
+    teams.forEach(t => {
+      const fg = textColorFor(t.color);
+      const removeBtnHtml = teamsLocked ? '' : `<button type="button" class="remove-team-btn" data-team-id="${t.id}" title="Remover equipe" aria-label="Remover equipe">&times;</button>`;
+      html += `<th class="col-team" style="background:${t.color};color:${fg}">
+        <div class="team-head">
+          <input type="text" class="team-name-input" data-team-id="${t.id}" value="${escapeHtml(t.name)}" maxlength="24" aria-label="Nome da equipe">
+          ${removeBtnHtml}
+        </div>
+      </th>`;
+    });
+    html += '<th class="row-actions" aria-label="Remover"></th>';
+    theadRow.innerHTML = html;
+  }
+
+  function renderTfoot(){
+    let html = '<td class="total-label">TOTAL</td>';
+    teams.forEach(t => {
+      const fg = textColorFor(t.color);
+      html += `<td class="total-team" id="foot-${t.id}" style="background:${t.color};color:${fg}">0</td>`;
+    });
+    html += '<td></td>';
+    tfootRow.innerHTML = html;
+  }
+
+  function renderBoardCards(){
+    boardGrid.innerHTML = teams.map(t => {
+      const bg2 = shadeColor(t.color, -0.45);
+      const fg = textColorFor(t.color);
+      const shadow = rgbaColor(t.color, 0.35);
+      return `<div class="board-card" data-team="${t.id}" style="background:linear-gradient(160deg, ${t.color}, ${bg2});color:${fg};--card-color:${shadow}">
+        <span class="rank" data-rank></span>
+        <span class="team-name">${escapeHtml(t.name)}</span>
+        <span class="team-score" data-score>0</span>
+        <span class="team-points-label">pontos</span>
+      </div>`;
+    }).join('');
+  }
+
+  function updateTeamControls(){
+    addTeamBtn.disabled = teamsLocked || teams.length >= MAX_TEAMS;
+    lockTeamsBtn.textContent = teamsLocked ? '🔒' : '🔓';
+    lockTeamsBtn.setAttribute('aria-label', teamsLocked ? 'Desbloquear adição de equipes' : 'Bloquear adição de equipes');
+    lockTeamsBtn.classList.toggle('locked', teamsLocked);
+    teamCountLabel.textContent = teams.length + '/' + MAX_TEAMS + ' equipes';
+  }
+
+  function renderTeamsUI(){
+    renderThead();
+    renderTfoot();
+    renderBoardCards();
+    updateTeamControls();
+    if(scoreTable) scoreTable.style.minWidth = Math.max(640, 220 + teams.length * 90) + 'px';
+  }
+
+  theadRow.addEventListener('input', e => {
+    const input = e.target.closest('.team-name-input');
+    if(!input) return;
+    const team = teams.find(t => t.id === input.dataset.teamId);
+    if(team){
+      team.name = input.value;
+      scheduleSave();
+      renderBoardCards();
+      recalcTotals();
+    }
+  });
+
+  theadRow.addEventListener('click', e => {
+    const btn = e.target.closest('.remove-team-btn');
+    if(!btn) return;
+    removeTeam(btn.dataset.teamId);
+  });
+
+  function removeTeam(id){
+    if(teamsLocked) return;
+    if(teams.length <= 1) return;
+    const team = teams.find(t => t.id === id);
+    if(!team) return;
+    if(!confirm('Remover a equipe "' + team.name + '"? Os pontos dela serão perdidos.')) return;
+    teams = teams.filter(t => t.id !== id);
+    state.forEach(row => { delete row.scores[id]; });
+    scheduleSave();
+    renderTeamsUI();
+    renderTable();
+  }
+
+  addTeamBtn.addEventListener('click', () => {
+    if(teamsLocked || teams.length >= MAX_TEAMS) return;
+    const newTeam = { id: makeTeamId(), name: 'Equipe ' + (teams.length + 1), color: COLOR_PALETTE[teams.length % COLOR_PALETTE.length] };
+    teams.push(newTeam);
+    state.forEach(row => { row.scores[newTeam.id] = ''; });
+    scheduleSave();
+    renderTeamsUI();
+    renderTable();
+  });
+
+  lockTeamsBtn.addEventListener('click', () => {
+    teamsLocked = !teamsLocked;
+    scheduleSave();
+    renderThead();
+    updateTeamControls();
+  });
 
   function buildRow(row, index){
     const tr = document.createElement('tr');
@@ -1242,18 +1499,19 @@ async function initApp(){
     tdActivity.appendChild(activityInput);
     tr.appendChild(tdActivity);
 
-    TEAMS.forEach(team => {
+    teams.forEach(team => {
       const td = document.createElement('td');
-      td.className = 'score-cell ' + team;
+      td.className = 'score-cell';
+      td.style.background = rgbaColor(team.color, 0.16);
       const input = document.createElement('input');
       input.type = 'number';
       input.inputMode = 'numeric';
       input.className = 'score-input';
       input.placeholder = '0';
-      input.value = row[team];
-      input.setAttribute('aria-label', team.charAt(0).toUpperCase() + team.slice(1));
+      input.value = row.scores[team.id] ?? '';
+      input.setAttribute('aria-label', team.name);
       input.addEventListener('input', e => {
-        state[index][team] = e.target.value;
+        state[index].scores[team.id] = e.target.value;
         scheduleSave();
         recalcTotals();
       });
@@ -1285,18 +1543,18 @@ async function initApp(){
     recalcTotals();
   }
 
-  function sumTeam(team){
-    return state.reduce((sum, row) => sum + (parseFloat(row[team]) || 0), 0);
+  function sumTeam(teamId){
+    return state.reduce((sum, row) => sum + (parseFloat(row.scores[teamId]) || 0), 0);
   }
 
   function recalcTotals(){
     const totals = {};
-    TEAMS.forEach(team => { totals[team] = sumTeam(team); });
+    teams.forEach(t => { totals[t.id] = sumTeam(t.id); });
 
-    document.getElementById('foot-empire').textContent = totals.empire;
-    document.getElementById('foot-rush').textContent = totals.rush;
-    document.getElementById('foot-power').textContent = totals.power;
-    document.getElementById('foot-vision').textContent = totals.vision;
+    teams.forEach(t => {
+      const el = document.getElementById('foot-' + t.id);
+      if(el) el.textContent = totals[t.id];
+    });
 
     updateBoard(totals);
   }
@@ -1304,22 +1562,28 @@ async function initApp(){
   function updateBoard(totals){
     const cards = Array.from(document.querySelectorAll('.board-card'));
     cards.forEach(card => {
-      const team = card.dataset.team;
-      card.querySelector('[data-score]').textContent = totals[team];
+      const teamId = card.dataset.team;
+      const scoreEl = card.querySelector('[data-score]');
+      if(scoreEl) scoreEl.textContent = totals[teamId] ?? 0;
     });
 
-    const ranked = TEAMS.slice().sort((a,b) => totals[b] - totals[a]);
-    const topScore = totals[ranked[0]];
+    const ranked = teams.map(t => t.id).sort((a, b) => (totals[b] || 0) - (totals[a] || 0));
+    const topScore = totals[ranked[0]] || 0;
 
     cards.forEach(card => {
-      const team = card.dataset.team;
-      const position = ranked.indexOf(team) + 1;
-      card.querySelector('[data-rank]').textContent = position + 'º lugar';
-      card.classList.toggle('leader', totals[team] === topScore && topScore > 0);
+      const teamId = card.dataset.team;
+      const position = ranked.indexOf(teamId) + 1;
+      const rankEl = card.querySelector('[data-rank]');
+      if(rankEl) rankEl.textContent = position + 'º lugar';
+      card.classList.toggle('leader', totals[teamId] === topScore && topScore > 0);
     });
   }
 
   addRowBtn.addEventListener('click', () => {
+    if(state.length >= MAX_ROWS){
+      alert('Limite de ' + MAX_ROWS + ' atividades atingido.');
+      return;
+    }
     state.push(emptyRow());
     scheduleSave();
     renderTable();
