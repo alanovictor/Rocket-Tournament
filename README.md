@@ -1,6 +1,6 @@
 # Rocket - SITE
 
-<h1 align="center"> Site para contagem de conto de evento </h1>
+<h1 align="center"> Site para contagem de pontos para eventos </h1>
 
 
 <p align="center">
