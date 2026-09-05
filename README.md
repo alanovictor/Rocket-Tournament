@@ -22,7 +22,8 @@ This project was developed with the following technologies:<br>
 (Esse projeto foi desenvolvido com as seguintes tecnologias):
 
 - HTML e CSS
-- Fire Base
+- JavaScript
+- FireBase
 
 ## 💻 Project-Projeto
 
